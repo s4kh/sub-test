@@ -1,24 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { gql, useSubscription } from '@apollo/client';
+
+const USER_SUBSCRIPTION = gql`
+  subscription OnUserChanged($userID: String!) {
+    userChanged(user_id: $userID) {
+      user_id
+      userToRoles(filter:{target_entity_id:{is:null}}){
+        role_id
+        target_entity_id
+      }
+    }
+  }
+`;
 
 function App() {
+  const { data, loading } = useSubscription(
+    // Change with different subsription query
+    USER_SUBSCRIPTION,
+    { variables: { userID: 'user_cQ6UEEEeZmPhkDv4' } },
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h2> Apollo app 🚀</h2>
+      data.userChanged is specific to subscription query - Should be replaced specific to the query
+      {!loading && data?.userChanged?.userToRoles.map((ur: any) => <div>{ur.role_id} - {ur.target_entity_id}</div>)}
     </div>
   );
 }
